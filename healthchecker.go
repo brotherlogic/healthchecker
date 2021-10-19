@@ -61,7 +61,7 @@ func main() {
 	}
 
 	ctx, cancel := utils.ManualContext("healthchecker-init", time.Minute)
-	server.checkHealth(ctx, &dpb.RegistryEntry{Identifier: "dev", Port: int32(50055), Name: "discovery"})
+	s.Log(fmt.Sprintf("HEALTH CHECK: %v", server.checkHealth(ctx, &dpb.RegistryEntry{Identifier: "dev", Port: int32(50055), Name: "discovery"}))
 	cancel()
 
 	server.Serve()
