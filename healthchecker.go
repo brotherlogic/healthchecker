@@ -1,11 +1,15 @@
 package main
 
 import (
+	"time"
+
 	"github.com/brotherlogic/goserver"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 
+	dpb "github.com/brotherlogic/discovery/proto"
 	pbg "github.com/brotherlogic/goserver/proto"
+	"github.com/brotherlogic/goserver/utils"
 )
 
 //Server main server type
@@ -55,6 +59,10 @@ func main() {
 	if err != nil {
 		return
 	}
+
+	ctx, cancel := utils.ManualContext("healthchecker-init", time.Minute)
+	server.checkHealth(ctx, &dpb.RegistryEntry{Identifier: "dev", Port: int32(50055), Name: "discovery"})
+	cancel()
 
 	server.Serve()
 }
