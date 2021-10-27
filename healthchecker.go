@@ -1,10 +1,12 @@
 package main
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/brotherlogic/goserver"
+	pb "github.com/brotherlogic/healthchecker/proto"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 
@@ -13,15 +15,24 @@ import (
 	"github.com/brotherlogic/goserver/utils"
 )
 
+var (
+	tracked = promauto.NewGauge(prometheus.GaugeOpts{
+		Name: "healthchecker_tracked",
+		Help: "The number of server requests",
+	})
+)
+
 //Server main server type
 type Server struct {
 	*goserver.GoServer
+	config *pb.Config
 }
 
 // Init builds the server
 func Init() *Server {
 	s := &Server{
 		GoServer: &goserver.GoServer{},
+		config:   &pb.Config{},
 	}
 	return s
 }
@@ -51,6 +62,52 @@ func (s *Server) GetState() []*pbg.State {
 	return []*pbg.State{}
 }
 
+func (s *Server) buildConfig(ctx context.Context, config *pb.Config) error {
+	conn, err := s.FDialServer(ctx, "discovery")
+	if err != nil {
+		return err
+	}
+
+	client := dpb.NewDiscoveryServiceV2Client(conn)
+
+	all, err := client.Get(ctx, &dpb.GetRequest{})
+	if err != nil {
+		return err
+	}
+
+	for _, service := range all.GetServices() {
+		found := false
+		for _, entry := range config.GetChecks() {
+			if entry.GetEntry().GetIdentifier() == service.Identifier && entry.GetEntry().GetName() == service.GetName() {
+				found = true
+			}
+		}
+
+		if !found {
+			config.Checks = append(config.Checks, &pb.Check{Entry: service})
+		}
+	}
+
+	newAll := []*pb.Check{}
+	for _, entry := range config.GetChecks() {
+		found := false
+		for _, service := range all.GetServices() {
+			if entry.GetEntry().GetIdentifier() == service.Identifier && entry.GetEntry().GetName() == service.GetName() {
+				found = true
+			}
+		}
+
+		if found {
+			newAll = append(newAll, entry)
+		}
+	}
+
+	config.Checks = newAll
+
+	tracked.Set(float64(len(config.Checks)))
+	return nil
+}
+
 func main() {
 	server := Init()
 	server.PrepServer()
@@ -62,7 +119,7 @@ func main() {
 	}
 
 	ctx, cancel := utils.ManualContext("healthchecker-init", time.Minute)
-	server.Log(fmt.Sprintf("HEALTH CHECK: %v", server.checkHealth(ctx, &dpb.RegistryEntry{Identifier: "dev", Port: int32(50055), Name: "discovery"})))
+	server.buildConfig(ctx, server.config)
 	cancel()
 
 	server.Serve()

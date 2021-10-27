@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"time"
 
 	"golang.org/x/net/context"
 	"google.golang.org/grpc/status"
@@ -10,6 +11,8 @@ import (
 	gpb "github.com/brotherlogic/goserver/proto"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
+
+	pb "github.com/brotherlogic/healthchecker/proto"
 )
 
 var (
@@ -18,6 +21,28 @@ var (
 		Help: "The number of server requests",
 	}, []string{"service", "identifier", "error"})
 )
+
+func (s *Server) runCheck(ctx context.Context, config *pb.Config) {
+	var best *pb.Check
+	last := time.Now().Unix()
+	for _, check := range config.GetChecks() {
+		if check.LastCheck < last {
+			best = check
+			last = check.LastCheck
+		}
+	}
+
+	if best != nil {
+		err := s.checkHealth(ctx, best.GetEntry())
+		best.LastCheck = time.Now().Unix()
+		if err == nil {
+			best.LastGoodCheck = best.LastCheck
+			best.BadChecksSinceLastGood = 0
+		} else {
+			best.BadChecksSinceLastGood++
+		}
+	}
+}
 
 func (s *Server) checkHealth(ctx context.Context, server *dpb.RegistryEntry) error {
 	conn, err := s.FDial(fmt.Sprintf("%v:%v", server.GetIdentifier(), server.GetPort()))
@@ -50,5 +75,6 @@ func (s *Server) checkHealth(ctx context.Context, server *dpb.RegistryEntry) err
 		"identifier": server.GetIdentifier(),
 		"error":      "unknown",
 	}).Inc()
-	return fmt.Errorf("Unable to determine if %v is alive -> %v, %v", server, alive, err)
+
+	return fmt.Errorf("unable to determine if %v is alive -> %v, %v", server, alive, err)
 }

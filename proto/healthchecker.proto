@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package healthchecker;
+
+option go_package = "github.com/brotherlogic/healthchecker/proto";
+
+import "github.com/brotherlogic/discovery/proto/discovery.proto";
+
+message Config {
+  repeated Check checks = 1;
+}
+
+message Check {
+    discovery.RegistryEntry entry = 1;
+    int64 last_good_check = 2;
+    int64 last_check = 3;
+    int32 bad_checks_since_last_good = 4;
+} 
