@@ -20,10 +20,27 @@ var (
 		Name: "healthchecker_checks",
 		Help: "The number of server requests",
 	}, []string{"service", "identifier", "error"})
+
+	totalChecks = promauto.NewCounter(prometheus.CounterOpts{
+		Name: "healthchecker_totalchecks",
+		Help: "The number of server requests",
+	})
+
+	lastChecked = promauto.NewGauge(prometheus.GaugeOpts{
+		Name: "healthchecker_lastChecked",
+		Help: "The number of serverrequests",
+	})
 )
 
 func (s *Server) recordMetrics(config *pb.Config) {
+	best := time.Now().Unix()
+	for _, check := range config.GetChecks() {
+		if check.LastCheck < best {
+			best = check.LastCheck
+		}
+	}
 
+	lastChecked.Set(float64(best))
 }
 
 func (s *Server) runCheck(ctx context.Context, config *pb.Config) {
@@ -51,6 +68,8 @@ func (s *Server) runCheck(ctx context.Context, config *pb.Config) {
 }
 
 func (s *Server) checkHealth(ctx context.Context, server *dpb.RegistryEntry) error {
+	totalChecks.Inc()
+
 	conn, err := s.FDial(fmt.Sprintf("%v:%v", server.GetIdentifier(), server.GetPort()))
 	if err != nil {
 		return err
