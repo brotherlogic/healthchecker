@@ -74,6 +74,7 @@ func (s *Server) checkHealth(ctx context.Context, server *dpb.RegistryEntry) err
 	if err != nil {
 		return err
 	}
+	defer conn.Close()
 
 	client := gpb.NewGoserverServiceClient(conn)
 	alive, err := client.IsAlive(ctx, &gpb.Alive{})

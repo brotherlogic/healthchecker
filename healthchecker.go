@@ -70,6 +70,7 @@ func (s *Server) buildConfig(ctx context.Context, config *pb.Config) error {
 	if err != nil {
 		return err
 	}
+	defer conn.Close()
 
 	client := dpb.NewDiscoveryServiceV2Client(conn)
 
