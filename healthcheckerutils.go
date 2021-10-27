@@ -22,7 +22,13 @@ var (
 	}, []string{"service", "identifier", "error"})
 )
 
+func (s *Server) recordMetrics(config *pb.Config) {
+
+}
+
 func (s *Server) runCheck(ctx context.Context, config *pb.Config) {
+	defer s.recordMetrics(config)
+
 	var best *pb.Check
 	last := time.Now().Unix()
 	for _, check := range config.GetChecks() {

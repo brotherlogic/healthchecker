@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/brotherlogic/goserver"
@@ -25,7 +26,8 @@ var (
 //Server main server type
 type Server struct {
 	*goserver.GoServer
-	config *pb.Config
+	config   *pb.Config
+	lastPull time.Time
 }
 
 // Init builds the server
@@ -33,6 +35,7 @@ func Init() *Server {
 	s := &Server{
 		GoServer: &goserver.GoServer{},
 		config:   &pb.Config{},
+		lastPull: time.Now().Add(-time.Hour),
 	}
 	return s
 }
@@ -108,6 +111,25 @@ func (s *Server) buildConfig(ctx context.Context, config *pb.Config) error {
 	return nil
 }
 
+func (s *Server) runHealthCheck() {
+	for !s.LameDuck {
+		ctx, cancel := utils.ManualContext("healthcheck-loop", time.Minute)
+		if time.Since(s.lastPull) > time.Hour {
+			err := s.buildConfig(ctx, s.config)
+			if err == nil {
+				s.lastPull = time.Now()
+			} else {
+				s.Log(fmt.Sprintf("Unable to read config: %v", err))
+			}
+		}
+
+		s.runCheck(ctx, s.config)
+		cancel()
+
+		time.Sleep(time.Second)
+	}
+}
+
 func main() {
 	server := Init()
 	server.PrepServer()
@@ -118,9 +140,7 @@ func main() {
 		return
 	}
 
-	ctx, cancel := utils.ManualContext("healthchecker-init", time.Minute)
-	server.buildConfig(ctx, server.config)
-	cancel()
+	go server.runHealthCheck()
 
 	server.Serve()
 }
