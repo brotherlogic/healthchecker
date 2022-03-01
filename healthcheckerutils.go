@@ -82,7 +82,7 @@ func (s *Server) runCheck(ctx context.Context, config *pb.Config) {
 }
 
 func (s *Server) unregister(ctx context.Context, entry *dpb.RegistryEntry) error {
-	conn, err := s.FDialServer(ctx, "discover")
+	conn, err := s.FDialServer(ctx, "discovery")
 	if err != nil {
 		return err
 	}
