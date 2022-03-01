@@ -74,6 +74,11 @@ func (s *Server) runCheck(ctx context.Context, config *pb.Config) {
 	}
 }
 
+func (s *Server) unregister(ctx context.Context, entry *dpb.RegistryEntry) error {
+	s.CtxLog(ctx, fmt.Sprintf("Unregistering: %v", entry))
+	return nil
+}
+
 func (s *Server) checkHealth(ctx context.Context, server *dpb.RegistryEntry) error {
 	totalChecks.Inc()
 
