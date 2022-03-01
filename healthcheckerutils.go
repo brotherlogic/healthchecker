@@ -70,6 +70,12 @@ func (s *Server) runCheck(ctx context.Context, config *pb.Config) {
 		} else {
 			best.BadChecksSinceLastGood++
 			healthErrors.With(prometheus.Labels{"service": best.Entry.Name, "identifier": best.Entry.Identifier}).Set(float64(best.BadChecksSinceLastGood))
+			if best.BadChecksSinceLastGood > 20 {
+				err := s.unregister(ctx, best.GetEntry())
+				if err == nil {
+					best.BadChecksSinceLastGood = 0
+				}
+			}
 		}
 	}
 }
