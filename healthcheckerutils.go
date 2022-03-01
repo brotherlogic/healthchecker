@@ -30,6 +30,11 @@ var (
 		Name: "healthchecker_lastChecked",
 		Help: "The number of serverrequests",
 	})
+
+	healthErrors = promauto.NewGaugeVec(prometheus.GaugeOpts{
+		Name: "healthchecker_errors",
+		Help: "The number of server requests",
+	}, []string{"service", "identifier"})
 )
 
 func (s *Server) recordMetrics(config *pb.Config) {
@@ -61,8 +66,10 @@ func (s *Server) runCheck(ctx context.Context, config *pb.Config) {
 		if err == nil {
 			best.LastGoodCheck = best.LastCheck
 			best.BadChecksSinceLastGood = 0
+			healthErrors.With(prometheus.Labels{"service": best.Entry.Name, "identifier": best.Entry.Identifier}).Set(float64(0))
 		} else {
 			best.BadChecksSinceLastGood++
+			healthErrors.With(prometheus.Labels{"service": best.Entry.Name, "identifier": best.Entry.Identifier}).Set(float64(best.BadChecksSinceLastGood))
 		}
 	}
 }
