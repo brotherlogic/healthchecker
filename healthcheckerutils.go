@@ -72,6 +72,7 @@ func (s *Server) runCheck(ctx context.Context, config *pb.Config) {
 			healthErrors.With(prometheus.Labels{"service": best.Entry.Name, "identifier": best.Entry.Identifier}).Set(float64(best.BadChecksSinceLastGood))
 			if best.BadChecksSinceLastGood > 20 {
 				err := s.unregister(ctx, best.GetEntry())
+				s.CtxLog(ctx, fmt.Sprintf("Unregistering: %v -> %v", best.GetEntry(), err))
 				if err == nil {
 					best.BadChecksSinceLastGood = 0
 				}
@@ -81,8 +82,18 @@ func (s *Server) runCheck(ctx context.Context, config *pb.Config) {
 }
 
 func (s *Server) unregister(ctx context.Context, entry *dpb.RegistryEntry) error {
-	s.CtxLog(ctx, fmt.Sprintf("Unregistering: %v", entry))
-	return nil
+	conn, err := s.FDialServer(ctx, "discover")
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+
+	client := dpb.NewDiscoveryServiceV2Client(conn)
+	_, err = client.Unregister(ctx, &dpb.UnregisterRequest{
+		Service: &dpb.RegistryEntry{Identifier: entry.GetIdentifier(), Name: entry.GetName()},
+	})
+
+	return err
 }
 
 func (s *Server) checkHealth(ctx context.Context, server *dpb.RegistryEntry) error {
