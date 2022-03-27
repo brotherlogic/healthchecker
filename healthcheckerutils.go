@@ -70,7 +70,7 @@ func (s *Server) runCheck(ctx context.Context, config *pb.Config) {
 		} else {
 			best.BadChecksSinceLastGood++
 			healthErrors.With(prometheus.Labels{"service": best.Entry.Name, "identifier": best.Entry.Identifier}).Set(float64(best.BadChecksSinceLastGood))
-			if best.BadChecksSinceLastGood > 20 {
+			if best.BadChecksSinceLastGood > 5 {
 				err := s.unregister(ctx, best.GetEntry())
 				s.CtxLog(ctx, fmt.Sprintf("Unregistering: %v -> %v", best.GetEntry(), err))
 				if err == nil {
