@@ -91,6 +91,7 @@ func (s *Server) unregister(ctx context.Context, entry *dpb.RegistryEntry) error
 
 	client := dpb.NewDiscoveryServiceV2Client(conn)
 	_, err = client.Unregister(ctx, &dpb.UnregisterRequest{
+		Reason:  "healthcheck-unregister",
 		Service: &dpb.RegistryEntry{Identifier: entry.GetIdentifier(), Name: entry.GetName()},
 	})
 
