@@ -63,7 +63,6 @@ func (s *Server) runCheck(ctx context.Context, config *pb.Config) {
 	if best != nil {
 		err := s.checkHealth(ctx, best.GetEntry())
 		best.LastCheck = time.Now().Unix()
-		s.CtxLog(ctx, fmt.Sprintf("Checked %v -> %v [%v]", best.GetEntry(), err, best.BadChecksSinceLastGood))
 		if err == nil {
 			best.LastGoodCheck = best.LastCheck
 			best.BadChecksSinceLastGood = 0
@@ -73,7 +72,6 @@ func (s *Server) runCheck(ctx context.Context, config *pb.Config) {
 			healthErrors.With(prometheus.Labels{"service": best.Entry.Name, "identifier": best.Entry.Identifier}).Set(float64(best.BadChecksSinceLastGood))
 			if best.BadChecksSinceLastGood > 5 {
 				err := s.unregister(ctx, best.GetEntry())
-				s.CtxLog(ctx, fmt.Sprintf("Unregistering: %v -> %v", best.GetEntry(), err))
 				if err == nil {
 					best.BadChecksSinceLastGood = 0
 				}
