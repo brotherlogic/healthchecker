@@ -133,10 +133,10 @@ func (s *Server) runHealthCheck() {
 
 func main() {
 	server := Init()
-	server.PrepServer()
+	server.PrepServer("healthchecker")
 	server.Register = server
 
-	err := server.RegisterServerV2("healthchecker", false, true)
+	err := server.RegisterServerV2(false)
 	if err != nil {
 		return
 	}
