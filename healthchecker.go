@@ -120,7 +120,7 @@ func (s *Server) runHealthCheck() {
 			if err == nil {
 				s.lastPull = time.Now()
 			} else {
-				s.Log(fmt.Sprintf("Unable to read config: %v", err))
+				s.CtxLog(ctx, fmt.Sprintf("Unable to read config: %v", err))
 			}
 		}
 
