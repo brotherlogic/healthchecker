@@ -127,7 +127,7 @@ func (s *Server) runHealthCheck() {
 		s.runCheck(ctx, s.config)
 		cancel()
 
-		time.Sleep(time.Second)
+		time.Sleep(time.Millisecond * 100)
 	}
 }
 
