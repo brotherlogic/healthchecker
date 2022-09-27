@@ -21,6 +21,9 @@ var (
 		Name: "healthchecker_tracked",
 		Help: "The number of server requests",
 	})
+	readFails = promauto.NewGaugeVec(prometheus.GaugeOpts{
+		Name: "healthchecker_read_fail",
+	}, []string{"error"})
 )
 
 //Server main server type
@@ -120,6 +123,7 @@ func (s *Server) runHealthCheck() {
 			if err == nil {
 				s.lastPull = time.Now()
 			} else {
+				readFails.With(prometheus.Labels{"error": fmt.Sprintf("%v", err)}).Inc()
 				s.CtxLog(ctx, fmt.Sprintf("Unable to read config: %v", err))
 			}
 		}
