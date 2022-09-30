@@ -75,7 +75,14 @@ func (s *Server) runCheck(ctx context.Context, config *pb.Config) {
 			if best.BadChecksSinceLastGood > 5 {
 				err := s.unregister(ctx, best.GetEntry())
 				if err == nil {
-					best.BadChecksSinceLastGood = 0
+					var nchecks []*pb.Check
+					for _, check := range config.GetChecks() {
+						if check.Entry.Identifier != best.Entry.Identifier &&
+							check.Entry.Name != best.Entry.Name {
+							nchecks = append(nchecks, check)
+						}
+					}
+					config.Checks = nchecks
 				}
 			}
 		}
