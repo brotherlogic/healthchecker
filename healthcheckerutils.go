@@ -86,6 +86,8 @@ func (s *Server) runCheck(ctx context.Context, config *pb.Config) {
 						if check.Entry.Identifier != best.Entry.Identifier &&
 							check.Entry.Name != best.Entry.Name {
 							nchecks = append(nchecks, check)
+						} else {
+							s.CtxLog(ctx, fmt.Sprintf("Skipping %v", check))
 						}
 					}
 					config.Checks = nchecks
