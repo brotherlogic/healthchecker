@@ -53,16 +53,20 @@ func (s *Server) runCheck(ctx context.Context, config *pb.Config) {
 
 	var best *pb.Check
 	last := time.Now().Unix()
+	var over []string
 	for _, check := range config.GetChecks() {
 		if check.LastCheck < last {
 			best = check
 			last = check.LastCheck
 		}
+		if check.BadChecksSinceLastGood > 0 {
+			over = append(over, fmt.Sprintf("%v:%v = %v", check.Entry.Name, check.Entry.Identifier, check.BadChecksSinceLastGood))
+		}
 	}
 
 	if best != nil {
 		err := s.checkHealth(ctx, best.GetEntry())
-		s.CtxLog(ctx, fmt.Sprintf("Checking %v (%v) -> %v: %v", best.Entry.Name, best.Entry.Identifier, best.BadChecksSinceLastGood, err))
+		s.CtxLog(ctx, fmt.Sprintf("Checking %v (%v) -> %v: %v [%v]", best.Entry.Name, best.Entry.Identifier, best.BadChecksSinceLastGood, err, over))
 
 		best.LastCheck = time.Now().Unix()
 		if err == nil {
