@@ -62,7 +62,7 @@ func (s *Server) runCheck(ctx context.Context, config *pb.Config) {
 
 	if best != nil {
 		err := s.checkHealth(ctx, best.GetEntry())
-		s.CtxLog(ctx, fmt.Sprintf("Checking %v -> %v: %v", best.Entry.Name, best.BadChecksSinceLastGood, err))
+		s.CtxLog(ctx, fmt.Sprintf("Checking %v (%v) -> %v: %v", best.Entry.Name, best.Entry.Identifier, best.BadChecksSinceLastGood, err))
 
 		best.LastCheck = time.Now().Unix()
 		if err == nil {
