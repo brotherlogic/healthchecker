@@ -29,7 +29,7 @@ var (
 	})
 )
 
-//Server main server type
+// Server main server type
 type Server struct {
 	*goserver.GoServer
 	config   *pb.Config
@@ -120,7 +120,7 @@ func (s *Server) buildConfig(ctx context.Context, config *pb.Config) error {
 
 func (s *Server) runHealthCheck() {
 	for !s.LameDuck {
-		ctx, cancel := utils.ManualContext("healthcheck-loop", time.Minute)
+		ctx, cancel := utils.ManualContext("healthcheck-loop", time.Second*10)
 		if time.Since(s.lastPull) > time.Hour {
 			err := s.buildConfig(ctx, s.config)
 			if err == nil {
