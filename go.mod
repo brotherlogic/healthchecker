@@ -3,10 +3,10 @@ module github.com/brotherlogic/healthchecker
 go 1.18
 
 require (
-	github.com/brotherlogic/discovery v0.0.0-20230301013806-5ce403179fbc
-	github.com/brotherlogic/goserver v0.0.0-20230208171911-c95aab060a3f
+	github.com/brotherlogic/discovery v0.0.0-20230303024637-f60d614a659d
+	github.com/brotherlogic/goserver v0.0.0-20230308065104-44cc7e357cc1
 	github.com/prometheus/client_golang v1.14.0
-	golang.org/x/net v0.7.0
+	golang.org/x/net v0.8.0
 	google.golang.org/grpc v1.53.0
 	google.golang.org/protobuf v1.28.1
 )
@@ -15,12 +15,12 @@ require (
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/brotherlogic/buildserver v0.0.0-20230225194104-cae858d57d08 // indirect
 	github.com/brotherlogic/datastore v0.0.0-20230118231105-ee668be05973 // indirect
-	github.com/brotherlogic/dstore v0.0.0-20230221032905-85df71ec3bd3 // indirect
-	github.com/brotherlogic/githubcard v0.0.0-20230228163243-0d0d36b3d728 // indirect
+	github.com/brotherlogic/dstore v0.0.0-20230307235716-cd48486e591d // indirect
+	github.com/brotherlogic/githubcard v0.0.0-20230308002203-262e2dd5e3bf // indirect
 	github.com/brotherlogic/gobuildslave v0.0.0-20230227225745-eae833d85d5b // indirect
 	github.com/brotherlogic/keystore v0.0.0-20230224051333-d636e478d74b // indirect
-	github.com/brotherlogic/lock v0.0.0-20230223165753-bc626833a36a // indirect
-	github.com/brotherlogic/logging v0.0.0-20230226200515-83a79f7c2ec0 // indirect
+	github.com/brotherlogic/lock v0.0.0-20230302171550-b7875965e1aa // indirect
+	github.com/brotherlogic/logging v0.0.0-20230305202842-6ccd756d041a // indirect
 	github.com/brotherlogic/monitor v0.0.0-20221025152653-c10877c5f9e6 // indirect
 	github.com/brotherlogic/versionserver v0.0.0-20221025154054-c9bcd41be2f2 // indirect
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
@@ -37,7 +37,7 @@ require (
 	go.opentelemetry.io/otel v1.14.0 // indirect
 	go.opentelemetry.io/otel/metric v0.37.0 // indirect
 	go.opentelemetry.io/otel/trace v1.14.0 // indirect
-	golang.org/x/sys v0.5.0 // indirect
-	golang.org/x/text v0.7.0 // indirect
-	google.golang.org/genproto v0.0.0-20230301171018-9ab4bdc49ad5 // indirect
+	golang.org/x/sys v0.6.0 // indirect
+	golang.org/x/text v0.8.0 // indirect
+	google.golang.org/genproto v0.0.0-20230306155012-7f2fa6fef1f4 // indirect
 )
