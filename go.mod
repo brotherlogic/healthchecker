@@ -3,7 +3,7 @@ module github.com/brotherlogic/healthchecker
 go 1.18
 
 require (
-	github.com/brotherlogic/discovery v0.0.0-20231020060530-be1ba24adf37
+	github.com/brotherlogic/discovery v0.0.0-20231027110234-ab57292a6596
 	github.com/brotherlogic/goserver v0.0.0-20230726200050-779ae6811580
 	github.com/prometheus/client_golang v1.17.0
 	golang.org/x/net v0.17.0
