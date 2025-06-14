@@ -112,7 +112,7 @@ func (s *Server) unregister(ctx context.Context, entry *dpb.RegistryEntry) error
 func (s *Server) checkHealth(ctx context.Context, server *dpb.RegistryEntry) error {
 	totalChecks.Inc()
 
-	conn, err := s.FDial(fmt.Sprintf("%v:%v", server.GetIdentifier(), server.GetPort()))
+	conn, err := s.FDial(fmt.Sprintf("%v:%v", server.GetIp(), server.GetPort()))
 	if err != nil {
 		return err
 	}
